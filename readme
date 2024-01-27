@@ -1,0 +1,52 @@
+Ryan Harding / 1-26-2024
+
+**Explanation**
+My approach to the problem is fairly simple, using the lessons from class as the main inspiration.
+All the actual operations are handled by a large class "PrimeMachine", while the execution is
+done in a main method in a Main class. PrimeMachine has three global variables: the maximum value
+to find primes up to, a counter used as a shared resource across multiple threads, and a boolean array of size max + 1.
+That list is then filled with the value 'true' (Marking all numbers between 0 and max as prime), and then 0 and 1
+are set to 'false' (Since they are not prime).
+
+The Counter, which starts at 2 is an interior class of PrimeMachine, and contains only one value and method: The starting
+counter value and a method to increment it respectively. The method getAndIncrement(), which returns the
+current counter and increments the value, is a synchronized method, only allowing one thread to have
+access to it at once, to make sure that no threads end up sharing the same value.
+
+The other interior class of PrimeMachine is the PrimeCollector, a thread that takes in the counter
+as the index to check if it's still prime in the array. If it is, it calls a synchronized method markMultiples()
+that runs through the array and marks all of that number's multiples as not prime. It then calls getAndIncrement()
+and continues onwards. This is the Sieve of Eratosthenes method of finding primes, and bypasses an isPrime() method entirely.
+The execution of the PrimeCollector is handled by two methods in PrimeMachine.
+The collectPrimes() method takes in a number of threads to use, spawns that many PrimeCollector objects
+running their algorithm, and then joins them.
+
+The final methods are getTopPrimes(), to retrieve a certain number of largest primes,
+and assignmentFileOutput() which retrieves all relevant data and writes it to a file named 'primes.txt'.
+It gets the sum of and amount of, primes by adding up and counting respectively all the 'true' values
+left within the boolean array. The indexes are the primes between 0 and max.
+
+**Efficiency**
+The program runs very quickly when using the inputs of 10^8 as the maximum value and 8 threads
+to find all primes. On an average MacBook, the device I worked from, it consistently takes around
+1 second to produce the final output. On UCF's server eustis3, it takes only 3-5 seconds total to run.
+
+For correctness, this has been compared against both rough single-thread attempts to find the primes
+between 0 and 10^8, and against a version of PrimeMachine that used a traditional isPrime() method.
+All results have been consistent.
+
+Strangely, I observed a much higher degree of impact from multithreading when using the less
+efficient isPrime() method of detecting primes (Going from over a minute to under 10s on my machine),
+than using a Sieves algorithm.
+
+
+**Compilation and Cleanup Instructions**
+Run the following commands:
+    javac Main.java
+    java Main
+
+To compile the program and create the 'primes.txt' output.
+
+To clean up the folder, run the following:
+    rm *.class
+    rm *.txt
